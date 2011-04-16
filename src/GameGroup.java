@@ -224,7 +224,9 @@ public class GameGroup extends Thread {
 			 */
 			//	TODO
 			
-			if(p.getSticksOfDynamite() > 0){
+			int dynamiteRemaining = Integer.parseInt(st.nextToken());
+			
+			if(dynamiteRemaining > 0){
 				int newx=-1, newy=-1;	//set to illegal subscripts in case the
 				//logic below ever fails (at least we'll
 				// get a message).

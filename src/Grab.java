@@ -364,7 +364,13 @@ public class Grab extends Applet implements Runnable {
 					tellServer("grab," + my_name);
 					break;
 				case KeyEvent.VK_B:
-					tellServer("blast," + my_name);
+					if(my_name.equals("blue")){
+						tellServer("blast," + my_name+","+blue.getSticksOfDynamite());
+					}
+					else if(my_name.equals("red")){
+						tellServer("blast," + my_name + ","+red.getSticksOfDynamite());
+					}
+					
 					break;
 			}
 		}
