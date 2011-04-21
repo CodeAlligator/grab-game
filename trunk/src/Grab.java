@@ -18,7 +18,9 @@ import java.io.*;
  * @author Paul Schrauder
  */
 public class Grab extends Applet implements Runnable {
-	/* the Thread */
+	/**
+	 * the Thread
+	 * */
 	Thread kicker;
 	
 	/**
@@ -53,14 +55,19 @@ public class Grab extends Applet implements Runnable {
 	boolean setup=false;  // record whether we've got the board yet
 	Player blue=null, red=null;
 	String my_name;
-
+	
 	/* the network stuff */
 	PrintWriter pw;
 	Socket s=null;
 	BufferedReader br = null;
 	String name, theHost="localhost";
 	int thePort;
-
+	
+	URL blastURL = Grab.class.getResource("audio/BLAST.wav");
+	URL grabURL = Grab.class.getResource("audio/GRAB.wav");
+	AudioClip blastSound = getAudioClip(blastURL);
+	AudioClip grabSound = getAudioClip(grabURL);
+	
 	public void init() {
 		/* check applet parameters */
 		try{
@@ -196,10 +203,12 @@ public class Grab extends Applet implements Runnable {
 					}
 					
 					if(act.equals("coin")){
+						grabSound.play();
 						blue.addCoin();
 						grid[x][y] = EMPTY;
 					}
 					else if(act.equals("blast") && (blue.getSticksOfDynamite() > 0)){
+						blastSound.play();
 						blue.blastStickOfDynamite();
 						grid[x][y] = EMPTY;
 					}
@@ -219,10 +228,12 @@ public class Grab extends Applet implements Runnable {
 					}
 					
 					if(act.equals("coin")){
+						grabSound.play();
 						red.addCoin();
 						grid[x][y] = EMPTY;
 					}
 					else if(act.equals("blast") && (red.getSticksOfDynamite() > 0)){
+						blastSound.play();
 						red.blastStickOfDynamite();
 						grid[x][y] = EMPTY;
 					}
@@ -268,6 +279,10 @@ public class Grab extends Applet implements Runnable {
 			br.close();
 			pw.close();
 			s.close();
+			
+			//	stop audio
+			blastSound.stop();
+			grabSound.stop();
 		}
 		catch(Exception e){};
 	}

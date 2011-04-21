@@ -16,10 +16,11 @@ public class GameGroup extends Thread {
 
 	int config;  // Simple game "state"
 	int grid[][];  //map of the board
-	public static final int GWD=12; // width
-	public static final int GHT=10; // and height of board
+	public static final int GWD = 25; // width
+	public static final int GHT = 20; // and height of board
 	Player red, blue;  //The two players
-
+	public static final int NUM_BLOCKS = 80;
+	public static final int NUM_MONEY = 15;
 
 	GameGroup ( Socket s ) {
 		arr = new GameClientThread[SIZE];		
@@ -82,13 +83,13 @@ public class GameGroup extends Thread {
 			grid[x][y] = Grab.EMPTY;
 		
 		// Place blocks
-		for (i = 0; i < 40; i++){
+		for (i = 0; i < NUM_BLOCKS; i++){
 			p = emptySpot();
 			grid[p.x][p.y] = Grab.BLOCK;
 		}
 		
 		// Place money
-		for (i = 0; i < 8; i++){
+		for (i = 0; i < NUM_MONEY; i++){
 			p = emptySpot();
 			grid[p.x][p.y] = Grab.COIN;
 		}
