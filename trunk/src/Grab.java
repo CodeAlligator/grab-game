@@ -63,10 +63,11 @@ public class Grab extends Applet implements Runnable {
 	String name, theHost="localhost";
 	int thePort;
 	
-	URL blastURL = Grab.class.getResource("audio/BLAST.wav");
-	URL grabURL = Grab.class.getResource("audio/GRAB.wav");
-	AudioClip blastSound = getAudioClip(blastURL);
-	AudioClip grabSound = getAudioClip(grabURL);
+	ClassLoader classLoader = Grab.class.getClassLoader();
+	URL blastURL = classLoader.getResource("audio/BLAST.wav");
+	AudioClip blastSound = Applet.newAudioClip(blastURL);
+	URL grabURL = classLoader.getResource("audio/GRAB.wav");
+	AudioClip grabSound = Applet.newAudioClip(grabURL);
 	
 	public void init() {
 		/* check applet parameters */
