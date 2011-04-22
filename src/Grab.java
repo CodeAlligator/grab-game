@@ -21,7 +21,7 @@ public class Grab extends Applet implements Runnable {
 	/**
 	 * the Thread
 	 * */
-	Thread kicker;
+	private Thread kicker;
 	
 	/**
 	 * 0 - clear
@@ -29,7 +29,7 @@ public class Grab extends Applet implements Runnable {
 	 * 2 - money (orange)
 	 * 3 - player
 	 */
-	int grid[][] = new int[GameGroup.GWD][GameGroup.GHT];	  // Game board
+	private int grid[][] = new int[GameGroup.GWD][GameGroup.GHT];	  // Game board
 	
 	/**
 	 * Represents an empty spot.
@@ -53,23 +53,29 @@ public class Grab extends Applet implements Runnable {
 	
 	public static final int CELLSIZE=30;
 	boolean setup=false;  // record whether we've got the board yet
-	Player blue=null, red=null;
-	String my_name;
+	private Player blue=null, red=null;
+	private String my_name;
 	
 	/* the network stuff */
-	PrintWriter pw;
-	Socket s=null;
-	BufferedReader br = null;
-	String name, theHost="localhost";
-	int thePort;
+	private PrintWriter pw;
+	private Socket s=null;
+	private BufferedReader br = null;
+	private String name, theHost="localhost";
+	private int thePort;
 	
-	ClassLoader classLoader = Grab.class.getClassLoader();
-	URL blastURL = classLoader.getResource("audio/BLAST.wav");
-	AudioClip blastSound = Applet.newAudioClip(blastURL);
-	URL grabURL = classLoader.getResource("audio/GRAB.wav");
-	AudioClip grabSound = Applet.newAudioClip(grabURL);
+	//	audio stuff
+	private ClassLoader classLoader = Grab.class.getClassLoader();
+	private URL blastURL = classLoader.getResource("audio/BLAST.wav");
+	private AudioClip blastSound = Applet.newAudioClip(blastURL);
+	private URL grabURL = classLoader.getResource("audio/GRAB.wav");
+	private AudioClip grabSound = Applet.newAudioClip(grabURL);
+	
+	public static final int appletWidth = 800;
+	public static final int appletHeight = 650;
 	
 	public void init() {
+		setSize(appletWidth, appletHeight);
+		
 		/* check applet parameters */
 		try{
 			thePort = Integer.valueOf(getParameter("port")).intValue();
