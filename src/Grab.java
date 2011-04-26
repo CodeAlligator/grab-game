@@ -55,6 +55,7 @@ public class Grab extends Applet implements Runnable {
 	boolean setup=false;  // record whether we've got the board yet
 	private Player blue=null, red=null, green=null, yellow=null;
 	private String my_name;
+        private int playerCount;
 	
 	/* the network stuff */
 	private PrintWriter pw;
@@ -162,6 +163,11 @@ public class Grab extends Applet implements Runnable {
 				setup = true;
 				repaint();
 			}
+                        else if (cmd.equals("players")){
+				String val = st.nextToken();
+                                playerCount = Integer.parseInt(val);
+                                repaint();
+                        }
 			else if (cmd.equals("who")){
 				my_name = st.nextToken();
 			}
@@ -384,6 +390,7 @@ public class Grab extends Applet implements Runnable {
 		if (!setup){
 			g.setColor(Color.black);
 			g.drawString("Waiting...",50,50);
+                        g.drawString("Players Connected: "+playerCount,50,60);
 		}
 		else{
 			System.out.println("painting board");
