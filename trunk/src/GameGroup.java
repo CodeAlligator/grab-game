@@ -28,14 +28,19 @@ public class GameGroup extends Thread {
 	}
 
 	public void addClient( Socket s ) {
-		int x;
+		int x, count=4;
 
 		for( x=0; x<SIZE; x++) 
 			if( arr[x] == null || !arr[x].isAlive() ) {
 				arr[x] = new GameClientThread(s,this);
 				arr[x].start();
-				return ;
+				break ;
 				}
+               for( x=0; x<SIZE; x++)
+			if( arr[x] == null || !arr[x].isAlive() ) {
+				count--;
+				}
+               output("players,"+count);
 	}
 
 	public void run() {
