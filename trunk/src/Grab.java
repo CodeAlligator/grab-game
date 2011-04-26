@@ -53,7 +53,7 @@ public class Grab extends Applet implements Runnable {
 	
 	public static final int CELLSIZE=30;
 	boolean setup=false;  // record whether we've got the board yet
-	private Player blue=null, red=null;
+	private Player blue=null, red=null, green=null, yellow=null;
 	private String my_name;
 	
 	/* the network stuff */
@@ -199,6 +199,38 @@ public class Grab extends Applet implements Runnable {
 				
 				repaint();
 			}
+                        else if (cmd.equals("green")){
+				String gx = st.nextToken();
+				String gy = st.nextToken();
+				String gd = st.nextToken();
+
+				try{
+					if (green == null)
+					green = new Player(0,0,0,Color.green);
+					green.x = Integer.valueOf(gx).intValue();
+					green.y = Integer.valueOf(gy).intValue();
+					green.dir = Integer.valueOf(gd).intValue();
+				}
+				catch (Exception e) {}; //if nonsense message, just ignore it
+
+				repaint();
+			}
+                        else if (cmd.equals("yellow")){
+				String yx = st.nextToken();
+				String yy = st.nextToken();
+				String yd = st.nextToken();
+
+				try{
+					if (yellow == null)
+					yellow = new Player(0,0,0,Color.yellow);
+					yellow.x = Integer.valueOf(yx).intValue();
+					yellow.y = Integer.valueOf(yy).intValue();
+					yellow.dir = Integer.valueOf(yd).intValue();
+				}
+				catch (Exception e) {}; //if nonsense message, just ignore it
+
+				repaint();
+			}
 			else if(cmd.equals("blueAction")){
 				String act = st.nextToken();	//	either "coin" or "blast"
 				int x = Integer.parseInt(st.nextToken());	//	x
@@ -247,6 +279,56 @@ public class Grab extends Applet implements Runnable {
 				}
 				catch(Exception e){}; //if nonsense message, just ignore it
 				
+				repaint();
+			}
+                        else if(cmd.equals("greenAction")){
+				String act = st.nextToken();	//	either "coin" or "blast"
+				int x = Integer.parseInt(st.nextToken());	//	x
+				int y = Integer.parseInt(st.nextToken());	//	y
+
+				try{
+					if (green == null){
+						green = new Player(0,0,0,Color.green);
+					}
+
+					if(act.equals("coin")){
+						grabSound.play();
+						green.addCoin();
+						grid[x][y] = EMPTY;
+					}
+					else if(act.equals("blast") && (green.getSticksOfDynamite() > 0)){
+						blastSound.play();
+						green.blastStickOfDynamite();
+						grid[x][y] = EMPTY;
+					}
+				}
+				catch(Exception e){}; //if nonsense message, just ignore it
+
+				repaint();
+			}
+                        else if(cmd.equals("yellowAction")){
+				String act = st.nextToken();	//	either "coin" or "blast"
+				int x = Integer.parseInt(st.nextToken());	//	x
+				int y = Integer.parseInt(st.nextToken());	//	y
+
+				try{
+					if (yellow == null){
+						yellow = new Player(0,0,0,Color.yellow);
+					}
+
+					if(act.equals("coin")){
+						grabSound.play();
+						yellow.addCoin();
+						grid[x][y] = EMPTY;
+					}
+					else if(act.equals("blast") && (yellow.getSticksOfDynamite() > 0)){
+						blastSound.play();
+						yellow.blastStickOfDynamite();
+						grid[x][y] = EMPTY;
+					}
+				}
+				catch(Exception e){}; //if nonsense message, just ignore it
+
 				repaint();
 			}
 		}
@@ -336,6 +418,18 @@ public class Grab extends Applet implements Runnable {
 				g.drawString("Red Coins Collected: " + red.getCoinsCollected(), 10, 10);
 				g.drawString("Red Dynamite remaining: " + red.getSticksOfDynamite(), 10, 20);
 			}
+                        if (green != null){
+				green.paint(g);
+
+				g.drawString("Green Coins Collected: " + green.getCoinsCollected(), 350, 10);
+				g.drawString("Green Dynamite remaining: " + green.getSticksOfDynamite(), 350, 20);
+			}
+                        if (yellow != null){
+				yellow.paint(g);
+
+				g.drawString("Yellow Coins Collected: " + yellow.getCoinsCollected(), 520, 10);
+				g.drawString("Yellow Dynamite remaining: " + yellow.getSticksOfDynamite(), 520, 20);
+			}
 		}
 	}
 
@@ -391,6 +485,12 @@ public class Grab extends Applet implements Runnable {
 					}
 					else if(my_name.equals("red")){
 						tellServer("blast," + my_name + ","+red.getSticksOfDynamite());
+					}
+                                        else if(my_name.equals("green")){
+						tellServer("blast," + my_name + ","+green.getSticksOfDynamite());
+					}
+                                        else if(my_name.equals("yellow")){
+						tellServer("blast," + my_name + ","+yellow.getSticksOfDynamite());
 					}
 					
 					break;

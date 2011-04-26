@@ -12,13 +12,13 @@ import java.awt.*;
 public class GameGroup extends Thread {
 
 	GameClientThread arr[];
-	final int SIZE=2;
+	final int SIZE=4;
 
 	int config;  // Simple game "state"
 	int grid[][];  //map of the board
 	public static final int GWD = 25; // width
 	public static final int GHT = 20; // and height of board
-	Player red, blue;  //The two players
+	Player red, blue, green, yellow;  //The two players
 	public static final int NUM_BLOCKS = 80;
 	public static final int NUM_MONEY = 15;
 
@@ -55,16 +55,28 @@ public class GameGroup extends Thread {
 		p = emptySpot();
 		red = new Player(p.x, p.y, (int)(4*Math.random()), null);
 		grid[p.x][p.y] = Grab.PLAYER;
+                
+                p = emptySpot();
+		green = new Player(p.x, p.y, (int)(4*Math.random()), null);
+		grid[p.x][p.y] = Grab.PLAYER;
+                
+                p = emptySpot();
+		yellow = new Player(p.x, p.y, (int)(4*Math.random()), null);
+		grid[p.x][p.y] = Grab.PLAYER;
 
 		//Send each player the config.
 		output("start,"+board);
 		//and player info (including which they are)
 		output("blue,"+blue.x+","+blue.y+","+blue.dir);
 		output("red,"+red.x+","+red.y+","+red.dir);
+                output("green,"+green.x+","+green.y+","+green.dir);
+		output("yellow,"+yellow.x+","+yellow.y+","+yellow.dir);
 		// We don't use output() here, because we need to send
 		// different messages to each player
 		arr[0].message("who,blue");
 		arr[1].message("who,red");
+                arr[2].message("who,green");
+		arr[3].message("who,yellow");
 	}
 	
 	/**
@@ -130,8 +142,13 @@ public class GameGroup extends Thread {
 		String pname = st.nextToken();
 		if (pname.equals("blue"))
 			p = blue;
-		else
+                else if (pname.equals("red"))
 			p = red;
+                else if (pname.equals("green"))
+			p = green;
+                else
+			p = yellow;
+                
 		
 		if (cmd.equals("turnleft"))
 		{
