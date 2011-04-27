@@ -2,7 +2,7 @@ import java.net.*;
 
 /**
  * The server for the Grab game.
- * This version only supports one instance of two connections.
+ * This version only supports one instance of four connections.
  * Then it shuts down after that one game, so you need to
  * restart the server before each game.
  * (Based on NetOthello code from Black Art of Java Game
@@ -17,16 +17,17 @@ import java.net.*;
  */
 class GameServer {
 	static ServerSocket servSock = null;
-
+	public static final int defaultPort = 2011;
+	
 	public static void main(String args[]) {
-	int port;
-	GameGroup gg=null;
+		int port;
+		GameGroup gg=null;
 
 		// Read the command line argument
 		try{
 			port = Integer.valueOf(args[0]).intValue();
 		} catch (Exception e) {
-				port = 2001;
+				port = defaultPort;
 			}
 
 		// Set up a ServerSocket to listen for connections

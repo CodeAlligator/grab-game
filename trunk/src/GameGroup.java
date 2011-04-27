@@ -12,16 +12,22 @@ import java.awt.*;
 public class GameGroup extends Thread {
 
 	GameClientThread arr[];
-	final int SIZE=4;
+	
+	/**
+	 * Number of players.
+	 */
+	final int SIZE = 4;
 
 	int config;  // Simple game "state"
 	int grid[][];  //map of the board
 	public static final int GWD = 25; // width
 	public static final int GHT = 20; // and height of board
-	Player red, blue, green, yellow;  //The two players
+	Player red, blue, green, yellow;  //The four players
 	public static final int NUM_BLOCKS = 80;
-	public static final int NUM_MONEY = 15;
-
+	public static final int NUM_MONEY = 18;
+	
+	int moneyRemaining = NUM_MONEY;
+	
 	GameGroup ( Socket s ) {
 		arr = new GameClientThread[SIZE];		
 		addClient( s );
@@ -50,27 +56,25 @@ public class GameGroup extends Thread {
 		//Get a random starting board
 		String board = fillGrid();
 
-		//Position the two players - Note, we never use	the colors here
+		//Position the four players - Note, we never use	the colors here
 		p = emptySpot();
 		blue = new Player(p.x, p.y, (int)(4*Math.random()), null);
-
-		// We also need to mark each player's spot in the grid, so we'll
-		// know it's not empty
 		grid[p.x][p.y] = Grab.PLAYER;
+		
 		p = emptySpot();
 		red = new Player(p.x, p.y, (int)(4*Math.random()), null);
 		grid[p.x][p.y] = Grab.PLAYER;
                 
-                p = emptySpot();
+        p = emptySpot();
 		green = new Player(p.x, p.y, (int)(4*Math.random()), null);
 		grid[p.x][p.y] = Grab.PLAYER;
                 
-                p = emptySpot();
+        p = emptySpot();
 		yellow = new Player(p.x, p.y, (int)(4*Math.random()), null);
 		grid[p.x][p.y] = Grab.PLAYER;
 
 		//Send each player the config.
-		output("start,"+board);
+		output("start," + board);
 		//and player info (including which they are)
 		output("blue,"+blue.x+","+blue.y+","+blue.dir);
 		output("red,"+red.x+","+red.y+","+red.dir);
@@ -80,7 +84,7 @@ public class GameGroup extends Thread {
 		// different messages to each player
 		arr[0].message("who,blue");
 		arr[1].message("who,red");
-                arr[2].message("who,green");
+        arr[2].message("who,green");
 		arr[3].message("who,yellow");
 	}
 	
@@ -113,9 +117,12 @@ public class GameGroup extends Thread {
 		
 		//Now, make the string
 		StringBuffer sb = new StringBuffer(GHT*GWD);
-		for (y = 0; y < GHT; y++)
-		 for (x = 0; x < GWD; x++)
-			sb.append(grid[x][y]);
+		for (y = 0; y < GHT; y++){
+			for (x = 0; x < GWD; x++){
+				sb.append(grid[x][y]);
+			}
+		}
+		
 		return new String(sb);
 	}
 	
@@ -200,8 +207,7 @@ public class GameGroup extends Thread {
 			 * takes a coin which you are standing next to and facing 
 			 * (and does nothing if there is no such coin)
 			 */
-			//	TODO
-			
+
 			int newx=-1, newy=-1;	//set to illegal subscripts in case the
 			//logic below ever fails (at least we'll
 			// get a message).
@@ -233,7 +239,16 @@ public class GameGroup extends Thread {
 				//	remove coin
 				grid[newx][newy] = Grab.EMPTY;
 				
+				moneyRemaining--;
+				
 				output(pname+"Action,"+"coin"+","+newx+","+newy);
+				
+				System.out.println("********** " + moneyRemaining);
+				
+				if(moneyRemaining == 0){
+					System.out.println("*0*0*0*0*0*0 " + moneyRemaining);
+					output(pname+"Action,"+"win"+","+newx+","+newy);
+				}
 			}
 			else{
 				return;
@@ -245,8 +260,7 @@ public class GameGroup extends Thread {
 			 * Each player starts the game with 4 sticks of dynamite and uses one for each blast, 
 			 * so there should be a counter for each player making sure they don't blast more than 4 blocks.
 			 */
-			//	TODO
-			
+
 			int dynamiteRemaining = Integer.parseInt(st.nextToken());
 			
 			if(dynamiteRemaining > 0){
@@ -291,13 +305,14 @@ public class GameGroup extends Thread {
 	}
 
 	public void finalize() {
-		int x;
-
 		output("bye");
 	}
 
+	/**
+	 * Sends a message to all players.
+	 * @param str
+	 */
 	public void output(String str) {
-	// Send a message to each client
 		int x;
 
 		for(x=0;x<SIZE;x++) 
@@ -305,8 +320,11 @@ public class GameGroup extends Thread {
 				arr[x].message(str);
 	}
 
+	/**
+	 * Checks if all players are connected.
+	 * @return
+	 */
 	public boolean full() {
-	// Check if we have all our players
 		int x;
 
 		for(x=0;x<SIZE;x++)

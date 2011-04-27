@@ -19,6 +19,11 @@ import java.io.*;
  */
 public class Grab extends Applet implements Runnable {
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1346352212843459335L;
+
+	/**
 	 * the Thread
 	 * */
 	private Thread kicker;
@@ -52,16 +57,24 @@ public class Grab extends Applet implements Runnable {
 	public static final int PLAYER = 3;
 	
 	public static final int CELLSIZE=30;
-	boolean setup=false;  // record whether we've got the board yet
+	
+	boolean setup = false;  // record whether we've got the board yet
+	
+	boolean gameOver = false;
+	
 	private Player blue=null, red=null, green=null, yellow=null;
+	
 	private String my_name;
-        private int playerCount;
+    
+	private int playerCount;
+	
+	private String winner = "";
 	
 	/* the network stuff */
 	private PrintWriter pw;
-	private Socket s=null;
+	private Socket s = null;
 	private BufferedReader br = null;
-	private String name, theHost="localhost";
+	private String name, theHost = "localhost";
 	private int thePort;
 	
 	//	audio stuff
@@ -82,7 +95,7 @@ public class Grab extends Applet implements Runnable {
 			thePort = Integer.valueOf(getParameter("port")).intValue();
 		}
 		catch(Exception e) {
-			thePort = 2001;
+			thePort = GameServer.defaultPort;
 		}
 
 		addMouseListener(new mseL());
@@ -257,6 +270,10 @@ public class Grab extends Applet implements Runnable {
 						blue.blastStickOfDynamite();
 						grid[x][y] = EMPTY;
 					}
+					else if(act.equals("win")){
+						winner = "Blue";
+						gameOver = true;
+					}
 				}
 				catch(Exception e){}; //if nonsense message, just ignore it
 				
@@ -281,6 +298,10 @@ public class Grab extends Applet implements Runnable {
 						blastSound.play();
 						red.blastStickOfDynamite();
 						grid[x][y] = EMPTY;
+					}
+					else if(act.equals("win")){
+						winner = "Red";
+						gameOver = true;
 					}
 				}
 				catch(Exception e){}; //if nonsense message, just ignore it
@@ -307,12 +328,16 @@ public class Grab extends Applet implements Runnable {
 						green.blastStickOfDynamite();
 						grid[x][y] = EMPTY;
 					}
+					else if(act.equals("win")){
+						winner = "Green";
+						gameOver = true;
+					}
 				}
 				catch(Exception e){}; //if nonsense message, just ignore it
 
 				repaint();
 			}
-                        else if(cmd.equals("yellowAction")){
+                else if(cmd.equals("yellowAction")){
 				String act = st.nextToken();	//	either "coin" or "blast"
 				int x = Integer.parseInt(st.nextToken());	//	x
 				int y = Integer.parseInt(st.nextToken());	//	y
@@ -331,6 +356,10 @@ public class Grab extends Applet implements Runnable {
 						blastSound.play();
 						yellow.blastStickOfDynamite();
 						grid[x][y] = EMPTY;
+					}
+					else if(act.equals("win")){
+						winner = "Yellow";
+						gameOver = true;
 					}
 				}
 				catch(Exception e){}; //if nonsense message, just ignore it
@@ -390,7 +419,87 @@ public class Grab extends Applet implements Runnable {
 		if (!setup){
 			g.setColor(Color.black);
 			g.drawString("Waiting...",50,50);
-                        g.drawString("Players Connected: "+playerCount,50,60);
+            g.drawString("Players Connected: " + playerCount, 50, 60);
+		}
+		else if(gameOver){
+			//	game over
+			System.out.println("Game over: Winner is " + winner);
+			
+			//	Draw board
+			for (x = 0; x < GameGroup.GWD; x++){
+				for (y = 0; y < GameGroup.GHT; y++){
+					if (grid[x][y] == BLOCK){
+						g.setColor(Color.gray);
+						g.fillRect(CELLSIZE*x,CELLSIZE*y,CELLSIZE-1,CELLSIZE-1);
+					}
+					else if (grid[x][y] == COIN){
+						g.setColor(Color.orange);
+						g.fillOval(CELLSIZE*x+2,CELLSIZE*y+2,CELLSIZE-4,CELLSIZE-4);
+					}
+				}
+			}
+			
+			g.setColor(Color.black);
+			g.drawRect(0, 0, CELLSIZE * GameGroup.GWD, CELLSIZE * GameGroup.GHT);
+			
+			//	stop game for the losers
+			/*if(winner.equalsIgnoreCase("Blue")){
+				red = null;
+				green = null;
+				yellow = null;
+			}
+			else if(winner.equalsIgnoreCase("Red")){
+				blue = null;
+				green = null;
+				yellow = null;
+			}
+			else if(winner.equalsIgnoreCase("Green")){
+				red = null;
+				blue = null;
+				yellow = null;
+			}
+			else if(winner.equalsIgnoreCase("Yellow")){
+				red = null;
+				green = null;
+				blue = null;
+			}*/
+			
+			// Add the players if they're there
+			if (blue != null){
+				if(winner.equalsIgnoreCase("Blue")){
+					blue.paint(g);
+				}
+			}
+			
+			if (red != null){
+				if(winner.equalsIgnoreCase("Red")){
+					red.paint(g);
+				}
+			}
+            if (green != null){
+            	if(winner.equalsIgnoreCase("Green")){
+					green.paint(g);
+				}
+			}
+            if (yellow != null){
+            	if(winner.equalsIgnoreCase("Yellow")){
+            		yellow.paint(g);
+				}
+			}
+            
+            //	Add winner message
+            g.drawString("Game Over! The winner is " + winner, Grab.appletWidth / 2 - 100, Grab.appletHeight / 2);
+            
+            //	pause to respect the winner... and then start a new game
+            try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			gameOver = false;
+			winner = "";
+            newGame();
+			repaint();
 		}
 		else{
 			System.out.println("painting board");
